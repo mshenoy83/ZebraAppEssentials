@@ -1,0 +1,30 @@
+﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.29">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;MonoAndroid44;MonoAndroid81;Xamarin.iOS10</TargetFrameworks>
+    <AssemblyName>AppEssentials</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+    <PackageReference Include="Symbol.XamarinEMDK">
+      <Version>2.7.0.82</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+    <Reference Include="Mono.Android">
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="ActivityUtils\*.*" />
+    <None Include="ActivityUtils\*.*" />
+    <Compile Remove="ScannerUtils\*.*" />
+    <None Include="ScannerUtils\*.*" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+    <Compile Include="ActivityUtils\*.cs" />
+    <Compile Include="ScannerUtils\*.cs" />
+  </ItemGroup>
+
+</Project>
