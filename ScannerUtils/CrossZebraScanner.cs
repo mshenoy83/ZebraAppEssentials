@@ -24,7 +24,7 @@ namespace AppEssentials.ScannerUtils
 
         static IZebraScanner CreateZebraScanner()
         {
-#if MONOANDROID81 || MONOANDROID44
+#if MONOANDROID81
             return new ZebraScannerImplementation();
 #else
             return null;

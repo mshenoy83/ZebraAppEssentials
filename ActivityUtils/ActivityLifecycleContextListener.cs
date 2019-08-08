@@ -30,7 +30,7 @@ namespace AppEssentials.ActivityUtils
             Activity = activity;
             if (Activity is IActivityScannerSupport activityScannerSupport)
             {
-                Current.BootScanner();                
+                Current.BootScanner();
             }
         }
 

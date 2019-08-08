@@ -1,6 +1,7 @@
 ﻿using Android.App;
 using Android.Content;
 using AppEssentials.ActivityUtils;
+using AppEssentials.EventHandling;
 using Symbol.XamarinEMDK;
 using Symbol.XamarinEMDK.Barcode;
 using System;
@@ -10,7 +11,19 @@ namespace AppEssentials.ScannerUtils
 {
     public class ZebraScannerImplementation : Java.Lang.Object, IZebraScanner, EMDKManager.IEMDKListener
     {
-        public event EventHandler<BarCodeAccessArgs> BarcodeRequested;
+
+        public event EventHandler<BarCodeAccessArgs> BarcodeRequested
+        {
+            add
+            {
+                CrossWeakEventManager.Current.AddEventHandler("BarcodeRequested", value);
+            }
+
+            remove
+            {
+                CrossWeakEventManager.Current.RemoveEventHandler("BarcodeRequested", value);
+            }
+        }
 
         // Declare a variable to store EMDKManager object
         private EMDKManager emdkManager = null;
@@ -139,7 +152,7 @@ namespace AppEssentials.ScannerUtils
             }
             catch (Exception ex)
             {
-                BarcodeRequested?.Invoke(null, new BarCodeAccessArgs("Error : EMDK closed unexpectedly! Please close and restart the application.", false));
+                CrossWeakEventManager.Current.HandleEvent(null, new BarCodeAccessArgs("Error : EMDK closed unexpectedly! Please close and restart the application.", false), "BarcodeRequested");
             }
         }
 
@@ -166,7 +179,7 @@ namespace AppEssentials.ScannerUtils
             }
             catch (Exception ex)
             {
-                BarcodeRequested?.Invoke(null, new BarCodeAccessArgs("Error : BarcodeManager object creation failed." + ex.Message, false));
+                CrossWeakEventManager.Current.HandleEvent(null, new BarCodeAccessArgs("Error : BarcodeManager object creation failed." + ex.Message, false), "BarcodeRequested");
             }
         }
 
@@ -197,7 +210,7 @@ namespace AppEssentials.ScannerUtils
                 }
                 else
                 {
-                    BarcodeRequested?.Invoke(null, new BarCodeAccessArgs("Error : Failed to get the list of supported scanner devices! Please close and restart the application.", false));
+                    CrossWeakEventManager.Current.HandleEvent(null, new BarCodeAccessArgs("Error : Failed to get the list of supported scanner devices! Please close and restart the application.", false), "BarcodeRequested");
                 }
             }
         }
@@ -249,7 +262,7 @@ namespace AppEssentials.ScannerUtils
             else
             {
                 status = "Status: " + statusString + " " + scannerNameBT + ":" + statusBT;
-                BarcodeRequested?.Invoke(null, new BarCodeAccessArgs("Status : " + status, false));
+                CrossWeakEventManager.Current.HandleEvent(null, new BarCodeAccessArgs("Status : " + status, false), "BarcodeRequested");
             }
         }
 
@@ -306,7 +319,7 @@ namespace AppEssentials.ScannerUtils
                 }
                 catch (ScannerException ex)
                 {
-                    BarcodeRequested?.Invoke(null, new BarCodeAccessArgs("Error : Unable to Start Scan : " + ex.Message, false));
+                    CrossWeakEventManager.Current.HandleEvent(null, new BarCodeAccessArgs("Error : Unable to Start Scan : " + ex.Message, false), "BarcodeRequested");
                 }
             }
         }
@@ -325,7 +338,7 @@ namespace AppEssentials.ScannerUtils
                 }
                 else
                 {
-                    BarcodeRequested?.Invoke(null, new BarCodeAccessArgs("Error : Failed to get the specified scanner device! Please close and restart the application.", false));
+                    CrossWeakEventManager.Current.HandleEvent(null, new BarCodeAccessArgs("Error : Failed to get the specified scanner device! Please close and restart the application.", false), "BarcodeRequested");
                     return;
                 }
 
@@ -344,12 +357,12 @@ namespace AppEssentials.ScannerUtils
                     }
                     catch (ScannerException ex)
                     {
-                        BarcodeRequested?.Invoke(null, new BarCodeAccessArgs("Error : Unable to Start Scan : " + ex.Message, false));
+                        CrossWeakEventManager.Current.HandleEvent(null, new BarCodeAccessArgs("Error : Unable to Start Scan : " + ex.Message, false), "BarcodeRequested");
                     }
                 }
                 else
                 {
-                    BarcodeRequested?.Invoke(null, new BarCodeAccessArgs("Error : Failed to initialize the scanner device", false));
+                    CrossWeakEventManager.Current.HandleEvent(null, new BarCodeAccessArgs("Error : Failed to initialize the scanner device", false), "BarcodeRequested");
                 }
             }
         }
@@ -399,7 +412,7 @@ namespace AppEssentials.ScannerUtils
                 }
                 catch (ScannerException ex)
                 {
-                    BarcodeRequested?.Invoke(null, new BarCodeAccessArgs("Error : While Release the Scanner : " + ex.Message, false));
+                    CrossWeakEventManager.Current.HandleEvent(null, new BarCodeAccessArgs("Error : While Release the Scanner : " + ex.Message, false), "BarcodeRequested");
                 }
 
                 scanner = null;
@@ -426,8 +439,7 @@ namespace AppEssentials.ScannerUtils
                         if (!string.IsNullOrEmpty(data.Data))
                         {
                             string code = data.Data.ToString();
-
-                            BarcodeRequested?.Invoke(null, new BarCodeAccessArgs(code, true));
+                            CrossWeakEventManager.Current.HandleEvent(null, new BarCodeAccessArgs(code, true), "BarcodeRequested");
                         }
                     }
                 }
@@ -489,22 +501,13 @@ namespace AppEssentials.ScannerUtils
                     catch (NullReferenceException ex)
                     {
                         statusString = "Error : An error has occurred.";
-
-                        if (BarcodeRequested != null)
-                        {
-                            BarcodeRequested(null, new BarCodeAccessArgs(statusString, false));
-                        }
-
+                        CrossWeakEventManager.Current.HandleEvent(null, new BarCodeAccessArgs(statusString, false), "BarcodeRequested");
                         Console.WriteLine(ex.StackTrace);
                     }
                     catch (Exception ex) //Added 2nd March 2017
                     {
                         statusString = "Exception in Scanner_Status event handler";
-                        if (BarcodeRequested != null)
-                        {
-                            BarcodeRequested(null, new BarCodeAccessArgs(statusString, false));
-                        }
-
+                        CrossWeakEventManager.Current.HandleEvent(null, new BarCodeAccessArgs(statusString, false), "BarcodeRequested");
                         Console.WriteLine(ex.StackTrace);
                     }
                 }
@@ -570,7 +573,7 @@ namespace AppEssentials.ScannerUtils
                 }
                 catch (ScannerException ex)
                 {
-                    BarcodeRequested?.Invoke(null, new BarCodeAccessArgs("Info : Unable to Set Scanner Config : " + ex.Message, false));
+                    CrossWeakEventManager.Current.HandleEvent(null, new BarCodeAccessArgs("Info : Unable to Set Scanner Config : " + ex.Message, false), "BarcodeRequested");
                 }
             }
         }
